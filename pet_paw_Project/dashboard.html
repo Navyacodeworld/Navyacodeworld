@@ -17,7 +17,7 @@
       <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
       <li><a href="tracker.html"><i class="fas fa-syringe"></i> Vet Tracker</a></li>
       <li><a href="profile.html"><i class="fas fa-user-edit"></i> Edit Profile</a></li>
-      <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      <li><a href="index.html" onclick="sessionStorage.removeItem('checklistSession')"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
     <div class="sidebar-emergency">
       <div class="emergency-card">
@@ -205,8 +205,17 @@
       renderCenters();
     };
 
-    // Checklist
+    // Checklist — resets on every login (fresh page load)
     function loadChecklist() {
+      // Generate a session ID for this login visit (stored in sessionStorage, not localStorage)
+      // sessionStorage is cleared automatically when the tab/browser session ends or on fresh navigation from login
+      const sessionId = sessionStorage.getItem('checklistSession');
+      if (!sessionId) {
+        // New login session — clear any previously saved checklist state
+        localStorage.removeItem('checklist');
+        // Mark this session so refreshing the same tab doesn't clear again
+        sessionStorage.setItem('checklistSession', Date.now().toString());
+      }
       const saved = JSON.parse(localStorage.getItem('checklist') || '{}');
       document.querySelectorAll('#checklist input[type=checkbox]').forEach(cb => {
         const id = cb.closest('li').dataset.id;
